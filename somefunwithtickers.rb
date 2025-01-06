@@ -16,6 +16,10 @@ bpm_for_this = 100
 set :arr, [0.1,0.2,0.3,4, 5].choose
 SAMPLE_PATH = "C:/Users/lilit/Music/"
 
+define :random_sample do
+  sample SAMPLE_PATH + ["samples/birdchirp.wav", "samples/cfmach.wav", "switch-on-and-off.mp3"].choose, rate: rrand(0.5, 1.5), amp: rrand(0.5, 1.5), release: rrand(0.1, 1.5)
+end
+
 in_thread do
   live_loop :birbloop do
     cue :birbs
@@ -35,7 +39,7 @@ in_thread do
     with_fx :bitcrusher do |btcrsh|
       sample SAMPLE_PATH + "samples/cfmach.wav", rate: 0.1, amp: 1.5, release: choose([0.1, 1.5, 0.01])
       sleep get[:arr]
-      control btcrsh, mix: 0.8
+      control btcrsh, mix: 0.9
       #adding some coffeeshop ambience
     end
   end
@@ -49,6 +53,15 @@ in_thread do
     play (ring :c3, :e4, :c2) [counter], release: 0.1
     play_pattern_timed chord(:e3, :maj11), get[:arr], release: 0.1
     sync_bpm bpm_for_this
+  end
+end
+
+in_thread do
+  live_loop :dynamic_bpm do
+    use_bpm rrand(80, 120)
+    sync :birbs #hmmm... using copilot for suggestions here, but ehhh...
+    random_sample
+    sleep get[:arr]
   end
 end
 
