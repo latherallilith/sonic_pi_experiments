@@ -14,16 +14,29 @@
 
 bpm_for_this = 100
 set :arr, [0.1,0.2,0.3,4, 5].choose
+SAMPLE_PATH = "C:/Users/lilit/Music/"
 
 in_thread do
   live_loop :birbloop do
     cue :birbs
     with_fx :bitcrusher do |btcrsh|
-      sample "C:/Users/lilit/Music/samples/birdchirp.wav", rate: 0.5, amp: 0.5, release: 0.1
+      sample SAMPLE_PATH + "samples/birdchirp.wav", rate: 0.5, amp: 0.5, release: 0.1
       sleep get[:arr]
       control btcrsh, mix: 0.3
       #birbs are birbing. Let's add random timeouts tho
       #sync_bpm bpm_for_this
+    end
+  end
+end
+
+in_thread do
+  live_loop :coffeeloop do
+    cue :coffee
+    with_fx :bitcrusher do |btcrsh|
+      sample SAMPLE_PATH + "samples/cfmach.wav", rate: 0.1, amp: 1.5, release: choose([0.1, 1.5, 0.01])
+      sleep get[:arr]
+      control btcrsh, mix: 0.8
+      #adding some coffeeshop ambience
     end
   end
 end
@@ -42,20 +55,19 @@ end
 in_thread do
   live_loop :dj_booth do
     with_fx :distortion do |dstrshn|
-      s = sample :bass_dnb_f #I know that single char name vars suck btw
-      a = sample :vinyl_rewind
-      b = sample :drum_cymbal_open
-      c = sample :drum_splash_hard
-      d = sample :misc_crow
-      y = sample :mehackit_phone4
+      sb = sample :bass_dnb_f #I know that single char name vars suck btw
+      av = sample :vinyl_rewind #so now they are 2 letter names ;)
+      bn = sample :drum_cymbal_open
+      ca = sample :elec_pop
+      ds = sample :misc_crow
+      ys = sample :elec_plip
       cr = sample :ambi_lunar_land
       cl = sample :guit_harmonics
       fd = sample :elec_soft_kick
-      rring = (ring s, a, b, c, d, cr, y, cl, fd).mirror.stretch(10)
+      rring = (ring sb, av, bn, ca, ds, cr, ys, cl, fd).mirror.stretch(10)
       puts rring.pick(get[:arr]), release: [0.3, 0.1].choose, pan: rrand(-1, 1)
       sleep get[:arr]
-      control dstrshn, mix: 0.1, phase: 0.01
-      #sync_bpm bpm_for_this
+      control dstrshn, mix: 0.1, phase: 0.024
     end
   end
 end
