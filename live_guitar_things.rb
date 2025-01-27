@@ -7,6 +7,11 @@ define :drum_samples do
   @drum_samples ||= [:drum_cymbal_pedal, :drum_roll, :drum_cymbal_soft, :drum_cymbal_hard]
 end
 
+define :vari_samples_pretty do
+  #will try few options
+  @piano_samples ||= [:ambi_piano,:elec_chime,:ambi_glass_hum]
+end
+
 define :rhythmic_pattern do
   @rhythmic_pattern ||= (ring 0.5, 0.75, 1, 1.2, 1.3, [0.35, 0.6].choose)
 end
@@ -15,7 +20,7 @@ define :echo_phases do
   @echo_phases ||= [0.25, 0.5, 0.75]
 end
 
-define :scale_notes do
+define :synth_scale_notes do
   @scale_notes ||= (scale :e3, :minor_pentatonic)
 end
 
@@ -25,6 +30,18 @@ in_thread do
     cue :guit
     with_fx :gverb do
       sample melodic_samples.choose,
+        amp: (line 1, 5, steps: 5).tick,
+        rate: [0.5, 1, 1.5, 2].choose
+      sync "/cue/drums"
+    end
+  end
+end
+
+in_thread do
+  loop do
+    cue :vari_noice
+    with_fx :echo do
+      sample vari_samples_pretty.choose,
         amp: (line 1, 5, steps: 5).tick,
         rate: [0.5, 1, 1.5, 2].choose
       sync "/cue/drums"
@@ -57,12 +74,27 @@ in_thread do
     cue :live_guit
     with_fx :reverb do
       with_fx :distortion do |dstrshn|
-        # Use the defined scale for melody
+        # Use sound input for the electric guitar
         synth :sound_in_stereo, note: scale_notes.choose,
           sustain: [0.2, 0.5, 1].choose, release: 0.3
-        control dstrshn, mix: 0.5, phase: [0.3, 0.4, 0.5].choose
+        control dstrshn, mix: 0.5, phase: [0.1, 0.3, 1.5].choose
       end
     end
     sync "/cue/drums"
   end
 end
+
+in_thread do
+  loop do
+    cue :synth
+    with_fx :reverb do
+        # Use the defined scale for melody
+        synth :sound_in_stereo, note: scale_notes.choose,
+          sustain: [0.2, 0.5, 1].choose, release: 0.3
+      end
+    end
+    sync "/cue/drums"
+  end
+end
+
+
